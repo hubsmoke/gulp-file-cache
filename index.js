@@ -36,12 +36,14 @@ FileCache.prototype.cache = function() {
     return callback();
   }
 
-  // flush cache to disk
-  function flush(callback) {
-    fs.writeFile(_this._filename, JSON.stringify(_this._cache), callback);
-  }
+  var flush = this.flush.bind(_this);
 
   return through.obj(transform, flush);
+};
+
+FileCache.prototype.flush = function(callback) {
+  // flush cache to disk
+  fs.writeFile(this._filename, JSON.stringify(this._cache), callback);
 };
 
 /**
@@ -50,8 +52,9 @@ FileCache.prototype.cache = function() {
  * @api public
  */
 
-FileCache.prototype.clear = function() {
+FileCache.prototype.clear = function(emptyCache) {
   this._cache = {};
+  if (emptyCache) this.flush();
 };
 
 /**
